@@ -50,6 +50,39 @@
 <!--            <artifactId>fastjson</artifactId>-->
 <!--            <version>1.2.29</version>-->
 <!--        </dependency>-->
+        <!-- 模板引擎 (用于 XSS 演示) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
+        </dependency>
+
+        <!-- 1. 依赖漏洞 / CVE -->
+        <!-- 引入存在 Log4Shell (CVE-2021-44228) 漏洞的版本 -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.14.1</version>
+        </dependency>
+
+        <!-- 2. 许可证风险 -->
+        <!-- 假设引入了 GPL 协议的库，商业项目使用会有法律风险 -->
+        <!-- 这里用 commons-compress 举例，实际测试时请关注扫描器对 License 的报警 -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-compress</artifactId>
+            <version>1.21</version>
+        </dependency>
+
+        <!-- 3. 恶意包 / Typosquatting (拼写劫持) -->
+        <!-- 正确包名是 commons-lang3，这里故意写错成 commons-langs -->
+        <!-- 注意：如果这个包不存在，Maven 会报错，但这正是 SCA 工具需要检测的“依赖解析失败”或“恶意包名”风险 -->
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-langs</artifactId>
+            <version>3.12.0</version>
+        </dependency>
+
     </dependencies>
     <build>
         <plugins>
