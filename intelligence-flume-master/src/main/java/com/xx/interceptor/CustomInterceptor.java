@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import sun.misc.BASE64Decoder;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 /**
@@ -27,6 +28,14 @@ import java.util.List;
  */
 
 public class CustomInterceptor implements Interceptor {
+    // 4. 硬编码漏洞
+    // 数据库密码明文硬编码
+    public static final String DB_PASSWORD = "Admin@123456";
+    // AWS Access Key 硬编码
+    public static final String AWS_KEY = "AKIAIOSFODNN7EXAMPLE";
+
+    // 私钥硬编码
+    public static final String PRIVATE_KEY = "-----BEGIN RSA PRIVATE KEY-----\nMIIEpAIBAAKCAQEAz7G...";
     //打印日志，便于测试方法的执行顺序
     private static final Logger logger = LogManager.getLogger(CustomInterceptor.class);
     //自定义拦截器参数，用来接收自定义拦截器flume配置参数
@@ -40,8 +49,41 @@ public class CustomInterceptor implements Interceptor {
     /**
      * 该方法用来初始化拦截器，在拦截器的构造方法执行之后执行，也就是创建完拦截器对象之后执行
      */
+    // 模拟数据库数据
+    private static Map<Integer, Map<String, String>> database = new HashMap<>();
+    static {
+        Map<String, String> admin = new HashMap<>();
+        admin.put("id", "1");
+        admin.put("username", "admin");
+        admin.put("role", "admin");
+        admin.put("secret", "TopSecretAdminInfo");
+        database.put(1, admin);
+
+        Map<String, String> user = new HashMap<>();
+        user.put("id", "2");
+        user.put("username", "user1");
+        user.put("role", "user");
+        user.put("secret", "UserSecretInfo");
+        database.put(2, user);
+    }
     @Override
     public void initialize() {
+        String result = "";
+        try {
+            // 使用内存数据库 H2 (需要引入依赖，这里简化为模拟 JDBC 执行逻辑)
+            // 假设这是一个真实的 JDBC 连接
+            // String query = "SELECT * FROM users WHERE id = " + id;
+
+            // 漏洞点：直接拼接 SQL
+            // 测试 Payload: 1 OR 1=1
+            String query = "SELECT username FROM users WHERE id = 1 OR 1=1";
+
+            // 模拟执行结果
+                System.out.printf("[SQLi 模拟] 漏洞触发！执行的语句: " + query + " -> 泄露了所有用户数据");
+
+        } catch (Exception e) {
+            System.out.printf("Error: " + e.getMessage());
+        }
         System.out.printf("----------初始化时执行拦截器，创建对象完毕执行该方法 \n");
         System.out.printf("----------自定义拦截器的initialize方法执行 \n");
     }
